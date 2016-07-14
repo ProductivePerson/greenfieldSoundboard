@@ -1,5 +1,3 @@
-"use strict";
-
 var keyCodes = {
   3: "break",
   8: "backspace / delete",
