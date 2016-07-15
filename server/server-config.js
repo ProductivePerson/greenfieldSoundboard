@@ -1,4 +1,5 @@
 var express = require('express');
+var fs = require('fs');
 /*
   Partial adds partial rendering support to Express so that you can
   render multiple templates in a single render call.
@@ -44,6 +45,14 @@ app.get('/', function(req, res) {
 });
 // serve index.
 // callback, redirects to /login.
+
+app.get('/sounds', function (req, res) {//returns an array of all the sounds in foley folder
+  fs.readdir(path.join(__dirname + '/../foley/'), function(err, files) {
+    if (err) console.error(err);
+
+    res.send(files);
+  });
+});
 
 // we may have to create many of the below routers, because each keyboard key
 // add util.checkUser

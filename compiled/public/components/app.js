@@ -65,7 +65,6 @@ var VKey = React.createClass({
     }
     this.render();
   },
-
   handleAudioEnd: function handleAudioEnd(event) {
     $('#' + this.props.targetKey).parent().removeClass('blue');
     $('#' + this.props.targetKey).parent().addClass('key');
@@ -91,30 +90,125 @@ var VKey = React.createClass({
     );
   }
 });
-var App = React.createClass({
-  displayName: "App",
+var RebindNode = React.createClass({
+  displayName: "RebindNode",
 
-  render: function render() {
-    qwertyMap = qwertyMap.map(function (key) {
-      if (key !== 0) {
-        return { key: key, path: testData[key] };
-      } else {
-        return 0;
+  updateServerBinding: function updateServerBinding(event) {
+    var code = brokenTargetKey.charCodeAt(0);
+    console.log("So you're trying to change", brokenTargetKey, " to ", this.props.targetSong, "?");
+    console.log("Key ", brokenTargetKey, "will become ", code);
+    console.log("Current brokenLogic is ", brokenLogic);
+    var song = "/soundfiles/" + this.props.targetSong;
+    brokenLogic.forEach(function (ele, idx) {
+      if (ele.key === code) {
+        brokenLogic[idx].path = song;
       }
     });
+  },
+  render: function render() {
     return React.createElement(
       "div",
-      { className: "keyboard" },
-      qwertyMap.map(function (keyBinding, idx) {
-        if (keyBinding === 0) {
-          return React.createElement("br", null);
-        } else {
-          return React.createElement(VKey, { targetKey: keyBinding.key, path: keyBinding.path });
-        }
-      })
+      { onClick: this.updateServerBinding },
+      React.createElement(
+        "p",
+        null,
+        "Click here to bind: ",
+        this.props.targetSong
+      )
     );
   }
 });
+var App = React.createClass({
+  displayName: "App",
+
+  getInitialState: function getInitialState() {
+    return {
+      bindings: [],
+      soundList: [],
+      changeKey: "-test-"
+    };
+  },
+  componentDidMount: function componentDidMount() {
+    this.serverRequest = $.get("http://localhost:8000/sounds", function (result) {
+      this.setState({
+        soundList: result
+      });
+    }.bind(this));
+
+    brokenLogic = qwertyMap.map(function (key) {
+      //TAKE THIS OUT AFTER REFACTOR;
+      return key !== 0 ? { key: key, path: testData[key] } : 0;
+    }); //TAKE THIS OUT AFTER REFACTOR;
+
+    this.setState({
+      bindings: qwertyMap.map(function (key) {
+        return key !== 0 ? { key: key, path: testData[key] } : 0;
+      })
+    });
+    window.addEventListener('keypress', this.setKeyChange);
+  },
+  componentWillUnmount: function componentWillUnmount() {
+    this.serverRequest.abort(); //not sure what this is for but online said to put it in.
+  },
+  setKeyChange: function setKeyChange(event) {
+    if (event.altKey) {
+      var key = event.code.toLowerCase()[3];
+      var keyNumber = key.charCodeAt(0);
+      if (keyNumber < 123 && keyNumber > 96) {
+        this.setState({ changeKey: key });
+        brokenTargetKey = key; //TAKE THIS OUT AFTER REFACTOR!
+      }
+    }
+  },
+  reRender: function reRender() {
+    ReactDOM.render(React.createElement(
+      "div",
+      null,
+      React.createElement(App, null)
+    ), document.getElementById('app'));
+  },
+  render: function render() {
+    return (//Tim heavily modified this return statement. Prepare to merge!
+      React.createElement(
+        "div",
+        { id: "appWindow" },
+        React.createElement(
+          "div",
+          { id: "bindingWindow" },
+          React.createElement(
+            "h1",
+            null,
+            "Click on a sound that you would like to change the binding of ",
+            this.state.changeKey,
+            " to"
+          ),
+          React.createElement("input", { type: "button", value: "CLick me when done", onClick: this.reRender }),
+          React.createElement(
+            "ul",
+            null,
+            this.state.soundList.map(function (sound) {
+              return React.createElement(RebindNode, { targetSong: sound });
+            })
+          )
+        ),
+        React.createElement(
+          "div",
+          { className: "keyboard" },
+          brokenLogic.map(function (keyBinding, idx) {
+            if (keyBinding === 0) {
+              return React.createElement("br", null);
+            } else {
+              return React.createElement(VKey, { targetKey: keyBinding.key, path: keyBinding.path });
+            }
+          })
+        )
+      )
+    );
+  }
+});
+
+var brokenTargetKey = "";
+var brokenLogic = [];
 
 ReactDOM.render(React.createElement(
   "div",
