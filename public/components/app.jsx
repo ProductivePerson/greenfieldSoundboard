@@ -46,6 +46,7 @@ var qwertyMap = [
   105,
   111,
   112,
+  0,
   97,
   115,
   100,
@@ -183,7 +184,6 @@ var App = React.createClass({
       <div id = 'appWindow'>
         <div id = "bindingWindow">
         <h1>Click on a sound that you would like to change the binding of {this.state.changeKey} to</h1>
-        <input type="button" value="CLick me when done" onClick={this.reRender}/>
         <ul>
         {
           this.state.soundList.map(function (sound, idx) {
@@ -191,6 +191,7 @@ var App = React.createClass({
           })
         }
         </ul>
+        <input type="button" value="CLick me when done" onClick={this.reRender}/>
         </div>
         <div className="keyboard">
         {
