@@ -186,8 +186,8 @@ var App = React.createClass({
           React.createElement(
             "ul",
             null,
-            this.state.soundList.map(function (sound) {
-              return React.createElement(RebindNode, { targetSong: sound });
+            this.state.soundList.map(function (sound, idx) {
+              return React.createElement(RebindNode, { key: idx, targetSong: sound });
             })
           )
         ),
@@ -196,9 +196,9 @@ var App = React.createClass({
           { className: "keyboard" },
           brokenLogic.map(function (keyBinding, idx) {
             if (keyBinding === 0) {
-              return React.createElement("br", null);
+              return React.createElement("br", { key: idx });
             } else {
-              return React.createElement(VKey, { targetKey: keyBinding.key, path: keyBinding.path });
+              return React.createElement(VKey, { key: idx, targetKey: keyBinding.key, path: keyBinding.path });
             }
           })
         )

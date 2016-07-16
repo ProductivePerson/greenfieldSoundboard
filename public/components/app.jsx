@@ -186,8 +186,8 @@ var App = React.createClass({
         <input type="button" value="CLick me when done" onClick={this.reRender}/>
         <ul>
         {
-          this.state.soundList.map(function (sound) {
-            return <RebindNode targetSong = {sound}/>;
+          this.state.soundList.map(function (sound, idx) {
+            return <RebindNode key={idx} targetSong = {sound}/>;
           })
         }
         </ul>
@@ -196,9 +196,9 @@ var App = React.createClass({
         {
           brokenLogic.map(function(keyBinding, idx) {
             if (keyBinding === 0) {
-              return <br/>
+              return <br key={idx}/>
             } else {
-              return <VKey targetKey={keyBinding.key} path={keyBinding.path}/>
+              return <VKey key={idx} targetKey={keyBinding.key} path={keyBinding.path}/>
             }
           })
         }
